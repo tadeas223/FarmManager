@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-public class Association : SqlItem<Association>
+public class Association : SqlItem
 {
     private int id;
     private Database database;
@@ -13,6 +13,13 @@ public class Association : SqlItem<Association>
     public Association(string name, Database database)
     {
         id = -1; 
+        this.database = database;
+        this.name = name;
+    }
+
+    public Association(int id, string name, Database database)
+    {
+        this.id = id;
         this.database = database;
         this.name = name;
     }
@@ -31,7 +38,7 @@ public class Association : SqlItem<Association>
         id = Convert.ToInt32(result); 
     }
     
-    public void Remove() 
+    public void Remove()
     {
         if(id == -1) throw new DatabaseException("Association not in database");
         
@@ -39,6 +46,21 @@ public class Association : SqlItem<Association>
         command.Parameters.AddWithValue("@idAssociation", id);
         command.ExecuteNonQuery(); 
         id = -1;
+    }
+
+    public static Association GetById(int id, Database database)
+    {
+        using var command = new SqlCommand("SELECT idAssociation, name FROM Associations WHERE idAssociation = @id", database.Connection);
+        command.Parameters.AddWithValue("@id", id);
+        var reader = command.ExecuteReader(); 
+        if(reader.Read())
+        {
+            return new Association(reader.GetInt32(0), reader.GetString(1), database);
+        }
+        else
+        {
+            throw new DatabaseException($"Association with id {id} not found"); 
+        }
     }
 
 }

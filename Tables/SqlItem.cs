@@ -1,4 +1,4 @@
-public interface SqlItem<T> where T : SqlItem<T>
+public interface SqlItem
 {
     int Id { get; }
     Database Database { get; }

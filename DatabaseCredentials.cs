@@ -44,7 +44,7 @@ public class DatabaseCredentials
     }
 
     public override string ToString()
-        {
-            return $"DatabaseCredentials{{url={url}, username={username}, password={password}}}";
-        }
+    {
+        return $"DatabaseCredentials{{url={url}, username={username}, password={password}}}";
+    }
 }

@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-public class Worker : SqlItem<Worker> 
+public class Worker : SqlItem 
 {
     private int id;
     private Database database;
@@ -23,7 +23,17 @@ public class Worker : SqlItem<Worker>
    {
         this.id = -1;
         this.database = database;
-        
+        this.name = name;
+        this.surname = surname;
+        this.birthDate = birthDate;
+        this.association = association;
+        this.fired = fired;
+   }
+
+   public Worker(int id, string name, string surname, DateTime birthDate, Association association, bool fired, Database database)
+   {
+        this.id = id;
+        this.database = database;
         this.name = name;
         this.surname = surname;
         this.birthDate = birthDate;
@@ -57,6 +67,21 @@ public class Worker : SqlItem<Worker>
         command.Parameters.AddWithValue("@idWorker", id);
         command.ExecuteNonQuery();
         id = -1;
+   }
+
+   public static Worker GetById(int id, Database database)
+   {
+        using var command = new SqlCommand("SELECT idWorker, name, surname, birthDate, idAssociation, fired FROM Workers WHERE idWorker = @id", database.Connection);
+        command.Parameters.AddWithValue("@id", id);
+        var reader = command.ExecuteReader();
+        if(reader.Read())
+        {
+            return new Worker(reader.GetInt32(0), reader.GetString(2), reader.GetString(3), reader.GetDateTime(4), Association.GetById(reader.GetInt32(5), database), reader.GetBoolean(6), database); 
+        }
+        else
+        {
+            throw new DatabaseException($"Field with id {id} not found"); 
+        }
    }
 
 }

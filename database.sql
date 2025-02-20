@@ -1,3 +1,4 @@
+/* This sql was created by me, but formatted by ChatGPT */
 CREATE TABLE Associations (
     idAssociation INT PRIMARY KEY IDENTITY(1, 1),
     name NVARCHAR(50) NOT NULL

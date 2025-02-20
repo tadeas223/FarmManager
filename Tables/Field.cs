@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-public class Field : SqlItem<Field>
+public class Field : SqlItem
 {
     private int id;
     private Database database;
@@ -17,11 +17,20 @@ public class Field : SqlItem<Field>
 
     public Field(string name, float size, Association association, Database database)
     {
+        this.id = -1; 
+        this.database = database;
         this.name = name;
         this.size = size;
         this.association = association;
+    }
+
+    public Field(int id, string name, float size, Association association, Database database)
+    {
+        this.id = id; 
         this.database = database;
-        this.id = -1; 
+        this.name = name;
+        this.size = size;
+        this.association = association;
     }
 
     public void Insert()
@@ -48,6 +57,23 @@ public class Field : SqlItem<Field>
         command.Parameters.AddWithValue("@idfield", id);
         command.ExecuteNonQuery();
         id = -1;
+    }
+
+    public static Field GetById(int id, Database database)
+    {
+        using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields WHERE idField = @id",database.Connection);
+        command.Parameters.AddWithValue("@id", id);
+        var reader = command.ExecuteReader();
+
+        if(reader.Read())
+        {
+            return new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database);
+        }
+        else
+        {
+            throw new DatabaseException($"Field with id {id} not found"); 
+        }
+
     }
 
 }

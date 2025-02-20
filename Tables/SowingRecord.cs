@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-public class SowingRecord : SqlItem<SowingRecord>
+public class SowingRecord : SqlItem
 {
 
     private int id;
@@ -21,12 +21,23 @@ public class SowingRecord : SqlItem<SowingRecord>
 
     public SowingRecord(Crop crop, Field field, Worker worker, DateTime date, Database database)
     {
+        this.id = -1;
+        this.database = database;
         this.crop = crop;
         this.field = field;
         this.worker = worker;
         this.date = date;
-        this.id = -1;
+    }
+
+    public SowingRecord(int id, Crop crop, Field field, Worker worker, DateTime date, Database database)
+    {
+        
+        this.id = id;
         this.database = database;
+        this.crop = crop;
+        this.field = field;
+        this.worker = worker;
+        this.date = date;
     }
 
     public void Insert()
@@ -54,5 +65,25 @@ public class SowingRecord : SqlItem<SowingRecord>
         command.Parameters.AddWithValue("@idSowingRecord", id);
         command.ExecuteNonQuery();
         id = -1;
+    }
+
+    public static SowingRecord GetById(int id, Database database)
+    {
+        using var command = new SqlCommand("SELECT idSowingRecord, idCrop, idFiend, idWorker, date FROM SowingRecords WHERE idSowingRecord = @id", database.Connection);
+        command.Parameters.AddWithValue("@id", id);
+        var reader = command.ExecuteReader();
+        if(reader.Read())
+        {
+            return new SowingRecord(reader.GetInt32(0),
+                    Crop.GetById(reader.GetInt32(1), database),
+                    Field.GetById(reader.GetInt32(2), database),
+                    Worker.GetById(reader.GetInt32(3), database),
+                    reader.GetDateTime(4),
+                    database);
+        }
+        else
+        {
+            throw new DatabaseException($"Field with id {id} not found"); 
+        }
     }
 }
