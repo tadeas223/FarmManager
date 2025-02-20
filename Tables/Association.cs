@@ -63,4 +63,53 @@ public class Association : SqlItem
         }
     }
 
+    public static Association GetByName(string name, Database database)
+    {
+        using var command = new SqlCommand("SELECT idAssociation, name FROM Associations WHERE name = @name", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        var reader = command.ExecuteReader(); 
+        if(reader.Read())
+        {
+            return new Association(reader.GetInt32(0), reader.GetString(1), database);
+        }
+        else
+        {
+            throw new DatabaseException($"Association with name {name} not found"); 
+        }
+    }
+
+    public static Association[] GetAll(Database database)
+    {
+        List<Association> list = new List<Association>();
+        using var command = new SqlCommand("SELECT idAssociation, name FROM Associations ORDER BY idAssociation DESC", database.Connection);
+        var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Association(reader.GetInt32(0), reader.GetString(1), database));
+        }
+        
+        return list.ToArray();
+    }
+
+    public static Association[] GetAll(Database database, int max)
+    {
+        List<Association> list = new List<Association>();
+        using var command = new SqlCommand($"SELECT TOP {max} idAssociation, name FROM Associations ORDER BY idAssociation DESC", database.Connection);
+        using var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Association(reader.GetInt32(0), reader.GetString(1), database));
+        }
+        
+        return list.ToArray();
+    }
+
+    public override string ToString()
+    {
+        return $"Association{{name={name}}}";
+    }
 }

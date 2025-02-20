@@ -6,13 +6,15 @@ public class DatabaseCredentials
 {
     private string username;
     private string password;
+    private string databaseName;
     private string url;
 
     public string Username { get => username; }
     public string Password { get => password; }
+    public string DatabaseName { get => databaseName; }
     public string Url { get => url; }
     [JsonIgnore]
-    public SqlConnectionStringBuilder ConnectionBuilder { 
+    public SqlConnectionStringBuilder ConnectionBuilderNoDB { 
         get {
             return new SqlConnectionStringBuilder
             {
@@ -23,11 +25,25 @@ public class DatabaseCredentials
             };
         }
     }
+    [JsonIgnore]
+    public SqlConnectionStringBuilder ConnectionBuilder { 
+        get {
+            return new SqlConnectionStringBuilder
+            {
+                DataSource = url,
+                UserID = username,
+                Password = password,
+                InitialCatalog = databaseName,
+                TrustServerCertificate = true,
+            };
+        }
+    }
 
-    public DatabaseCredentials(string url, string username, string password) 
+    public DatabaseCredentials(string url, string databaseName, string username, string password) 
     {
         this.username = username;
         this.password = password;
+        this.databaseName = databaseName;
         this.url = url;
     }
 
@@ -45,6 +61,6 @@ public class DatabaseCredentials
 
     public override string ToString()
     {
-        return $"DatabaseCredentials{{url={url}, username={username}, password={password}}}";
+        return $"DatabaseCredentials{{url={url}, databaseName={databaseName}, username={username}, password={password}}}";
     }
 }

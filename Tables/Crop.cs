@@ -70,4 +70,49 @@ public class Crop : SqlItem
             throw new DatabaseException($"Crop with id {id} not found"); 
         }
     }
+
+    public static Crop GetByName(string name, Database database)
+    {
+        using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops WHERE name = @name", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        var reader = command.ExecuteReader();
+        if(reader.Read())
+        {
+            return new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database);
+        }
+        else
+        {
+            throw new DatabaseException($"Crop with name {name} not found"); 
+        }
+    }
+
+    public static Crop[] GetAll(Database database)
+    {
+        List<Crop> list = new List<Crop>();
+        using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops ORDER DY idCrop DESC", database.Connection);
+        var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database));
+        }
+        
+        return list.ToArray();
+    }
+
+    public static Crop[] GetAll(Database database, int max)
+    {
+        List<Crop> list = new List<Crop>();
+        using var command = new SqlCommand($"SELECT TOP {max} idCrop, name, price FROM Crops ORDER BY idCrop DESC", database.Connection);
+        using var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database));
+        }
+        
+        return list.ToArray();
+    }
 }

@@ -73,7 +73,51 @@ public class Field : SqlItem
         {
             throw new DatabaseException($"Field with id {id} not found"); 
         }
-
     }
 
+    public static Field GetByName(string name, Database database)
+    {
+        using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields WHERE name = @name",database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        var reader = command.ExecuteReader();
+
+        if(reader.Read())
+        {
+            return new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database);
+        }
+        else
+        {
+            throw new DatabaseException($"Field with name {name} not found"); 
+        }
+    }
+
+    public static Field[] GetAll(Database database)
+    {
+        List<Field> list = new List<Field>();
+        using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields ORDER BY idField DESC",database.Connection);
+        var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database));
+        }
+        
+        return list.ToArray();
+    }
+
+    public static Field[] GetAll(Database database, int max)
+    {
+        List<Field> list = new List<Field>();
+        using var command = new SqlCommand($"SELECT TOP {max} idField, name, size, idAssociation FROM Fields ORDER BY idField DESC",database.Connection);
+        using var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database));
+        }
+        
+        return list.ToArray();
+    }
 }

@@ -76,7 +76,13 @@ public class Worker : SqlItem
         var reader = command.ExecuteReader();
         if(reader.Read())
         {
-            return new Worker(reader.GetInt32(0), reader.GetString(2), reader.GetString(3), reader.GetDateTime(4), Association.GetById(reader.GetInt32(5), database), reader.GetBoolean(6), database); 
+            return new Worker(reader.GetInt32(0),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetDateTime(4),
+                    Association.GetById(reader.GetInt32(5), database),
+                    reader.GetBoolean(6), 
+                    database); 
         }
         else
         {
@@ -84,5 +90,68 @@ public class Worker : SqlItem
         }
    }
 
+   public static Worker GetByName(string name, string surname, Database database)
+   {
+        using var command = new SqlCommand("SELECT idWorker, name, surname, birthDate, idAssociation, fired FROM Workers WHERE name = @name AND surname = @surname", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        command.Parameters.AddWithValue("@surname", surname);
+        var reader = command.ExecuteReader();
+        if(reader.Read())
+        {
+            return new Worker(reader.GetInt32(0),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetDateTime(4),
+                    Association.GetById(reader.GetInt32(5), database),
+                    reader.GetBoolean(6), 
+                    database); 
+        }
+        else
+        {
+            throw new DatabaseException($"Field with name {name} {surname} not found"); 
+        }
+   }
+
+    public static Worker[] GetAll(Database database)
+    {
+        List<Worker> list = new List<Worker>();
+        using var command = new SqlCommand("SELECT idWorker, name, surname, birthDate, idAssociation, fired FROM Workers WHERE name = @name AND surname = @surname ORDER BY idWorker DESC",
+                database.Connection);
+        var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            list.Add(new Worker(reader.GetInt32(0),
+                        reader.GetString(2),
+                        reader.GetString(3),
+                        reader.GetDateTime(4),
+                        Association.GetById(reader.GetInt32(5), database),
+                        reader.GetBoolean(6),
+                        database)); 
+        }
+        
+        return list.ToArray();
+    }
+
+    public static Worker[] GetAll(Database database, int max)
+    {
+        List<Worker> list = new List<Worker>();
+        using var command = new SqlCommand($"SELECT TOP {max} idWorker, name, surname, birthDate, idAssociation, fired FROM Workers WHERE name = @name AND surname = @surname ORDER BY idWorker DESC",
+                database.Connection);
+        using var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            list.Add(new Worker(reader.GetInt32(0),
+                        reader.GetString(2),
+                        reader.GetString(3),
+                        reader.GetDateTime(4),
+                        Association.GetById(reader.GetInt32(5), database),
+                        reader.GetBoolean(6),
+                        database)); 
+        }
+        
+        return list.ToArray();
+    }
 }
 

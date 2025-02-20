@@ -86,4 +86,44 @@ public class SowingRecord : SqlItem
             throw new DatabaseException($"Field with id {id} not found"); 
         }
     }
+
+    public static SowingRecord[] GetAll(Database database)
+    {
+        List<SowingRecord> list = new List<SowingRecord>();
+        using var command = new SqlCommand("SELECT idSowingRecord, idCrop, idFiend, idWorker, date FROM SowingRecords ORDER BY idSowingRecord DESC", database.Connection);
+        var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new SowingRecord(reader.GetInt32(0),
+                    Crop.GetById(reader.GetInt32(1), database),
+                    Field.GetById(reader.GetInt32(2), database),
+                    Worker.GetById(reader.GetInt32(3), database),
+                    reader.GetDateTime(4),
+                    database));
+        }
+        
+        return list.ToArray();
+    }
+
+    public static SowingRecord[] GetAll(Database database, int max)
+    {
+        List<SowingRecord> list = new List<SowingRecord>();
+        using var command = new SqlCommand($"SELECT TOP {max} idSowingRecord, idCrop, idFiend, idWorker, date FROM SowingRecords ORDER BY idSowingRecord DESC", database.Connection);
+        using var reader = command.ExecuteReader();
+        
+        while(reader.Read())
+        {
+            
+            list.Add(new SowingRecord(reader.GetInt32(0),
+                    Crop.GetById(reader.GetInt32(1), database),
+                    Field.GetById(reader.GetInt32(2), database),
+                    Worker.GetById(reader.GetInt32(3), database),
+                    reader.GetDateTime(4),
+                    database));
+        }
+        
+        return list.ToArray();
+    }
 }
