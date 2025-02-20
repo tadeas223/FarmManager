@@ -91,7 +91,7 @@ public class SowingRecord : SqlItem
     {
         List<SowingRecord> list = new List<SowingRecord>();
         using var command = new SqlCommand("SELECT idSowingRecord, idCrop, idFiend, idWorker, date FROM SowingRecords ORDER BY idSowingRecord DESC", database.Connection);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {

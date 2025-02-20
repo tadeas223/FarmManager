@@ -69,9 +69,9 @@ public static class DatabaseConsole
         {
             Console.WriteLine(@"
                 
-                ************************************************************
-                |   Welcome to the Database :)                             |  
-                ************************************************************
+            ************************************************************
+            |   Welcome to the Database :)                             |  
+            ************************************************************
             
             ");
             
@@ -108,10 +108,18 @@ public static class DatabaseConsole
     private static Dictionary<string, IDBCommand> GetCommands()
     {
         Dictionary<string, IDBCommand> commands = new Dictionary<string, IDBCommand>();
-        commands.Add("show", new ShowCommand());
         commands.Add("help", new HelpCommand());
         commands.Add("error", new ErrorCommand());
         commands.Add("exit", new ExitCommand());
+        commands.Add("show", new ShowCommand());
+        commands.Add("table-info", new TableInfoCommand());
+
+        commands.Add("add-crop", new AddCropCommand());
+        commands.Add("add-field", new AddFieldCommand());
+        commands.Add("add-worker", new AddWorkerCommand());
+        commands.Add("add-association", new AddAssociationCommand());
+        commands.Add("add-sowing-record", new AddSowingRecordCommand());
+
         return commands;
     }
 

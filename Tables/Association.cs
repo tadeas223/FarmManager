@@ -82,7 +82,7 @@ public class Association : SqlItem
     {
         List<Association> list = new List<Association>();
         using var command = new SqlCommand("SELECT idAssociation, name FROM Associations ORDER BY idAssociation DESC", database.Connection);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {

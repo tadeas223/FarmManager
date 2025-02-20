@@ -117,7 +117,7 @@ public class Worker : SqlItem
         List<Worker> list = new List<Worker>();
         using var command = new SqlCommand("SELECT idWorker, name, surname, birthDate, idAssociation, fired FROM Workers WHERE name = @name AND surname = @surname ORDER BY idWorker DESC",
                 database.Connection);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {

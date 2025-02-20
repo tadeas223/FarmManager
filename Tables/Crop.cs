@@ -89,13 +89,13 @@ public class Crop : SqlItem
     public static Crop[] GetAll(Database database)
     {
         List<Crop> list = new List<Crop>();
-        using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops ORDER DY idCrop DESC", database.Connection);
-        var reader = command.ExecuteReader();
+        using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops ORDER BY idCrop DESC", database.Connection);
+        using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {
             
-            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database));
+            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), database));
         }
         
         return list.ToArray();
@@ -110,9 +110,14 @@ public class Crop : SqlItem
         while(reader.Read())
         {
             
-            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database));
+            list.Add(new Crop(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), database));
         }
         
         return list.ToArray();
+    }
+
+    public override string ToString()
+    {
+        return $"Crop{{name={name}, price={price}}}";
     }
 }

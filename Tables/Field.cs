@@ -95,7 +95,7 @@ public class Field : SqlItem
     {
         List<Field> list = new List<Field>();
         using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields ORDER BY idField DESC",database.Connection);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {
