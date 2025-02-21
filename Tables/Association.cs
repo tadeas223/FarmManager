@@ -33,7 +33,7 @@ public class Association : SqlItem
         command.ExecuteNonQuery();
         
         // Get the id 
-        using var command2 = new SqlCommand("SELECT TOP 1 idAssociation FROM Associations ORDER BY idAssociation DESC");
+        using var command2 = new SqlCommand("SELECT TOP 1 idAssociation FROM Associations ORDER BY idAssociation DESC", database.Connection);
         var result = command2.ExecuteScalar();
         id = Convert.ToInt32(result); 
     }
@@ -48,26 +48,36 @@ public class Association : SqlItem
         id = -1;
     }
 
+    public void Update(string name)
+    {
+        if(id == -1) throw new DatabaseException("Association not in database");
+        
+        using var command = new SqlCommand("UPDATE Associations SET name = @name WHERE idAssociation = @idAssociation", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        command.Parameters.AddWithValue("@idAssociation", id);
+        command.ExecuteNonQuery(); 
+        
+        this.name = name;
+    }
+
+
     public static Association GetById(int id, Database database)
     {
         using var command = new SqlCommand("SELECT idAssociation, name FROM Associations WHERE idAssociation = @id", database.Connection);
         command.Parameters.AddWithValue("@id", id);
-        var reader = command.ExecuteReader(); 
+        using var reader = command.ExecuteReader(); 
         if(reader.Read())
         {
             return new Association(reader.GetInt32(0), reader.GetString(1), database);
         }
-        else
-        {
-            throw new DatabaseException($"Association with id {id} not found"); 
-        }
+        throw new DatabaseException($"Association with id {id} not found"); 
     }
 
     public static Association GetByName(string name, Database database)
     {
         using var command = new SqlCommand("SELECT idAssociation, name FROM Associations WHERE name = @name", database.Connection);
         command.Parameters.AddWithValue("@name", name);
-        var reader = command.ExecuteReader(); 
+        using var reader = command.ExecuteReader(); 
         if(reader.Read())
         {
             return new Association(reader.GetInt32(0), reader.GetString(1), database);
@@ -110,6 +120,6 @@ public class Association : SqlItem
 
     public override string ToString()
     {
-        return $"Association{{name={name}}}";
+        return $" - name: {name}";
     }
 }

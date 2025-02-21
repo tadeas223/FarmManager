@@ -55,15 +55,29 @@ public class Crop : SqlItem
         command.ExecuteNonQuery();
         id = -1;
     }
+
+    public void Update(string name, float price)
+    {
+        if(id == -1) throw new DatabaseException("Crop not in database");
+        
+        using var command = new SqlCommand("UPDATE Crops SET name = @name, price = @price WHERE idCrop = @idCrop", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        command.Parameters.AddWithValue("@price", price);
+        command.Parameters.AddWithValue("@idCrop", id);
+        command.ExecuteNonQuery();
+        
+        this.name = name;
+        this.price = price;
+    }
     
     public static Crop GetById(int id, Database database)
     {
         using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops WHERE idCrop = @id", database.Connection);
         command.Parameters.AddWithValue("@id", id);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         if(reader.Read())
         {
-            return new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database);
+            return new Crop(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), database);
         }
         else
         {
@@ -75,10 +89,10 @@ public class Crop : SqlItem
     {
         using var command = new SqlCommand("SELECT idCrop, name, price FROM Crops WHERE name = @name", database.Connection);
         command.Parameters.AddWithValue("@name", name);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
         if(reader.Read())
         {
-            return new Crop(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), database);
+            return new Crop(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), database);
         }
         else
         {
@@ -118,6 +132,6 @@ public class Crop : SqlItem
 
     public override string ToString()
     {
-        return $"Crop{{name={name}, price={price}}}";
+        return $" - name: {name}\n - price: {price}";
     }
 }

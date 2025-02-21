@@ -14,73 +14,22 @@ public static class DatabaseConsole
         
         ");
         
-        DatabaseCredentials credentials = null!;
-        string databaseName;
-        
-        // If credentials from previous session exists ask if the user wants to use them.
-        // If yes set askCredentials to true
-        bool askCredentials = true;
-        if(File.Exists(CREDENTIALS_FILE))
-        {
-            Console.Write("Load credentials [Yes/No]: ");
-            string input = Console.ReadLine()!;
-            if(input.ToCharArray()[0] == 'Y')
-            {
-                credentials = DatabaseCredentials.FromJson(File.ReadAllText(CREDENTIALS_FILE));
-                askCredentials = false; 
-            }
-        }
-    
-        // Ask the user for credentials and database name
-        // + save the credentials
-        if(askCredentials)
-        {
-            while(true)
-            {
-                Console.Write("database url: ");
-                string databaseUrl = Console.ReadLine()!;
-                Console.Write("username: ");
-                string username = Console.ReadLine()!;
-                Console.Write("password: ");
-                string password = Console.ReadLine()!;
-                Console.Write("database name: ");
-                databaseName = Console.ReadLine()!;
-                
-                // Create the credentials
-                credentials = new DatabaseCredentials(databaseUrl, databaseName, username, password);
-                File.WriteAllText(CREDENTIALS_FILE, credentials.ToJson());
+        Database db = new Database(GetCredentials());
 
-                if(!Database.Exists(credentials))
-                {
-                    Console.WriteLine($"The database \"{databaseName}\" does not exist!!!");
-                    Console.Write($"Create \"{databaseName}\" database [Yes/No]: ");
-                    string input = Console.ReadLine()!;
-                    if(input.ToCharArray()[0] == 'Y')
-                    {
-                        Database.Create(credentials);
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-        
-        using(var db = new Database(credentials))
-        {
-            Console.WriteLine(@"
-                
-            ************************************************************
-            |   Welcome to the Database :)                             |  
-            ************************************************************
-            
-            ");
-            
 
-            while(true)
-            {
-                Console.Write("> ");
-                Console.WriteLine(Cmd(Console.ReadLine()!, db));               
-            }
+        Console.WriteLine(@"
+            
+        ************************************************************
+        |   Welcome to the Database :)                             |  
+        ************************************************************
+        
+        ");
+        
+
+        while(true)
+        {
+            Console.Write("> ");
+            Console.WriteLine(Cmd(Console.ReadLine()!, db));               
         }
     }
 
@@ -98,8 +47,8 @@ public static class DatabaseConsole
         }
         catch (Exception e)
         {
-
-            return "Console: Uncaught exception " + e.Message;
+            throw e;
+        //    return "Console: Uncaught exception " + e.Message;
         }
 
 
@@ -120,7 +69,95 @@ public static class DatabaseConsole
         commands.Add("add-association", new AddAssociationCommand());
         commands.Add("add-sowing-record", new AddSowingRecordCommand());
 
+        commands.Add("remove-crop", new RemoveCropCommand());
+        commands.Add("remove-field", new RemoveFieldCommand());
+        commands.Add("remove-worker", new RemoveWorkerCommand());
+        commands.Add("remove-association", new RemoveAssociationCommand());
+        commands.Add("remove-sowing-record", new RemoveSowingRecordCommand());
+        
+        commands.Add("update-crop", new UpdateCropCommand());
+        commands.Add("update-field", new UpdateFieldCommand());
+        commands.Add("update-worker", new UpdateWorkerCommand());
+        commands.Add("update-association", new UpdateAssociationCommand());
+        commands.Add("update-sowing-record", new UpdateSowingRecordCommand());
         return commands;
     }
+    
+    private static DatabaseCredentials GetCredentials()
+    {
+        DatabaseCredentials credentials = null!; 
+        bool valid = false;
+        while(!valid)
+        {
+            bool ask = false; 
+            if(File.Exists(CREDENTIALS_FILE))
+            {
+                Console.Write("Load credentials [Yes/No]: ");
+                string input = Console.ReadLine()!;
+                if(input.ToCharArray()[0] == 'Y')
+                {
+                    credentials = DatabaseCredentials.FromJson(File.ReadAllText(CREDENTIALS_FILE));
+                }
+                else
+                {
+                    ask = true; 
+                }
+            
+            }
 
+            if(ask)
+            {
+                credentials = AskCredentials();
+            }
+            
+            try
+            {
+                if(!Database.Exists(credentials))
+                {
+                    Console.WriteLine($"The database \"{credentials.DatabaseName}\" does not exist!!!");
+                    Console.Write($"Create \"{credentials.DatabaseName}\" database [Yes/No]: ");
+                    string input = Console.ReadLine()!;
+                    if(input.ToCharArray()[0] == 'Y')
+                    {
+                        Database.Create(credentials);
+                        valid = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Missing database");
+                    }
+                }
+                else
+                {
+                    valid = true;
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Failed to connect to the database");
+            }
+            
+        }
+
+        File.WriteAllText(CREDENTIALS_FILE, credentials.ToJson());
+
+        return credentials;
+    }
+
+    private static DatabaseCredentials AskCredentials()
+    {
+        Console.Write("database url: ");
+        string databaseUrl = Console.ReadLine()!;
+        Console.Write("username: ");
+        string username = Console.ReadLine()!;
+        Console.Write("password: ");
+        string password = Console.ReadLine()!;
+        Console.Write("database name: ");
+        string databaseName = Console.ReadLine()!;
+        
+        // Create the credentials
+        var credentials = new DatabaseCredentials(databaseUrl, databaseName, username, password);
+        
+        return credentials;
+    }
 }

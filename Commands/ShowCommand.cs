@@ -40,35 +40,35 @@ public class ShowCommand : IDBCommand
                 var arr1 = Association.GetAll(database);
                 foreach(var a in arr1)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Association:\n" + a.ToString() + "\n";
                 }
                 break;
             case "crops":
                 var arr2 = Crop.GetAll(database);
                 foreach(var a in arr2)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Crop:\n" + a.ToString() + "\n";
                 }
                 break;
             case "fields":
                 var arr3 = Field.GetAll(database);
                 foreach(var a in arr3)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Field:\n" + a.ToString() + "\n";
                 }
                 break;
             case "sowingrecords":
                 var arr4 = SowingRecord.GetAll(database);
                 foreach(var a in arr4)
                 {
-                    str += a.ToString() + "\n";
+                    str += "SowingRecord:\n" + a.ToString() + "\n";
                 }
                 break;
             case "workers":
                 var arr5 = Worker.GetAll(database);
                 foreach(var a in arr5)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Worker:\n" + a.ToString() + "\n";
                 }
                 break;
         }
@@ -84,35 +84,35 @@ public class ShowCommand : IDBCommand
                 var arr1 = Association.GetAll(database, max);
                 foreach(var a in arr1)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Association:\n" + a.ToString() + "\n";
                 }
                 break;
             case "crops":
                 var arr2 = Crop.GetAll(database, max);
                 foreach(var a in arr2)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Crop:\n" + a.ToString() + "\n";
                 }
                 break;
             case "fields":
                 var arr3 = Field.GetAll(database, max);
                 foreach(var a in arr3)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Field:\n" + a.ToString() + "\n";
                 }
                 break;
             case "sowingrecords":
                 var arr4 = SowingRecord.GetAll(database, max);
                 foreach(var a in arr4)
                 {
-                    str += a.ToString() + "\n";
+                    str += "SowingRecord:\n" + a.ToString() + "\n";
                 }
                 break;
             case "workers":
                 var arr5 = Worker.GetAll(database, max);
                 foreach(var a in arr5)
                 {
-                    str += a.ToString() + "\n";
+                    str += "Worker:\n" + a.ToString() + "\n";
                 }
                 break;
         }

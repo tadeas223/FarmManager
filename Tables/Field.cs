@@ -6,14 +6,20 @@ public class Field : SqlItem
     private Database database;
     private string name;
     private float size;
-    private Association association;
+    private int associationId;
 
 
     public int Id { get => id;}
     public Database Database { get => database; }
     public string Name { get => name; }
     public float Size { get => size; }
-    public Association Associaiton { get => association; }
+    public Association Association
+    {
+        get
+        {
+            return Association.GetById(associationId, database); 
+        }
+    }
 
     public Field(string name, float size, Association association, Database database)
     {
@@ -21,16 +27,16 @@ public class Field : SqlItem
         this.database = database;
         this.name = name;
         this.size = size;
-        this.association = association;
+        this.associationId = association.Id;
     }
 
-    public Field(int id, string name, float size, Association association, Database database)
+    public Field(int id, string name, float size, int associationId, Database database)
     {
         this.id = id; 
         this.database = database;
         this.name = name;
         this.size = size;
-        this.association = association;
+        this.associationId = associationId;
     }
 
     public void Insert()
@@ -40,7 +46,7 @@ public class Field : SqlItem
         using var command = new SqlCommand("INSERT INTO Fields (name, size, idAssociation) VALUES (@name, @size, @idAssociation)", database.Connection);
         command.Parameters.AddWithValue("@name", name);
         command.Parameters.AddWithValue("@size", size);
-        command.Parameters.AddWithValue("@idAssociation", association.Id);
+        command.Parameters.AddWithValue("@idAssociation", associationId);
         command.ExecuteNonQuery(); 
    
         // Get the id 
@@ -59,15 +65,31 @@ public class Field : SqlItem
         id = -1;
     }
 
+    public void Update(string name, float size, Association association)
+    {
+        if(id == -1) throw new DatabaseException("Field not in database");
+        
+        using var command = new SqlCommand("UPDATE Fields SET name = @name, size = @size, idAssociation = @idAssociation WHERE idField = @idField", database.Connection);
+        command.Parameters.AddWithValue("@name", name);
+        command.Parameters.AddWithValue("@size", size);
+        command.Parameters.AddWithValue("@idAssociation", association.Id);
+        command.Parameters.AddWithValue("@idfield", id);
+        command.ExecuteNonQuery();
+    
+        this.name = name;
+        this.size = size;
+        this.associationId = association.Id;
+    }
+
     public static Field GetById(int id, Database database)
     {
         using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields WHERE idField = @id",database.Connection);
         command.Parameters.AddWithValue("@id", id);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
 
         if(reader.Read())
         {
-            return new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database);
+            return new Field(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), reader.GetInt32(3), database);
         }
         else
         {
@@ -79,11 +101,11 @@ public class Field : SqlItem
     {
         using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields WHERE name = @name",database.Connection);
         command.Parameters.AddWithValue("@name", name);
-        var reader = command.ExecuteReader();
+        using var reader = command.ExecuteReader();
 
         if(reader.Read())
         {
-            return new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database);
+            return new Field(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), reader.GetInt32(3), database);
         }
         else
         {
@@ -94,13 +116,12 @@ public class Field : SqlItem
     public static Field[] GetAll(Database database)
     {
         List<Field> list = new List<Field>();
-        using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields ORDER BY idField DESC",database.Connection);
+        using var command = new SqlCommand("SELECT idField, name, size, idAssociation FROM Fields ORDER BY idField DESC", database.Connection);
         using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {
-            
-            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database));
+            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), reader.GetInt32(3), database));
         }
         
         return list.ToArray();
@@ -109,15 +130,19 @@ public class Field : SqlItem
     public static Field[] GetAll(Database database, int max)
     {
         List<Field> list = new List<Field>();
-        using var command = new SqlCommand($"SELECT TOP {max} idField, name, size, idAssociation FROM Fields ORDER BY idField DESC",database.Connection);
+        using var command = new SqlCommand($"SELECT TOP {max} idField, name, size, idAssociation FROM Fields ORDER BY idField DESC", database.Connection);
         using var reader = command.ExecuteReader();
         
         while(reader.Read())
         {
-            
-            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), Association.GetById(reader.GetInt32(3), database), database));
+            list.Add(new Field(reader.GetInt32(0), reader.GetString(1), Convert.ToSingle(reader.GetDouble(2)), reader.GetInt32(3), database));
         }
         
         return list.ToArray();
+    }
+
+    public override string ToString()
+    {
+        return $" - name: {name}\n - size: {size}\n - Association: \n{Utility.AddTabs(Association.ToString(), 1)}";
     }
 }

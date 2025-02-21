@@ -60,6 +60,6 @@ public class AddSowingRecordCommand : IDBCommand
         SowingRecord record = new SowingRecord(crop, field, worker, date, database);
         record.Insert();
 
-        return "Sucess";
+        return "Success";
     }
 }

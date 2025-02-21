@@ -2,7 +2,7 @@ public class AddAssociationCommand : IDBCommand
 {
     public string Execute(string[] args, Database database)
     {
-        Console.WriteLine("name: ");
+        Console.Write("name: ");
         string name = Console.ReadLine()!;
 
         Association association = new Association(name, database);
