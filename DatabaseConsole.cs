@@ -1,9 +1,15 @@
+/// <summary>
+/// Class that contains functions for the console enviroment.
+/// </summary>
 public static class DatabaseConsole
 {
     public static string CREDENTIALS_FILE = "credentials.json";
     
     private static Dictionary<string, IDBCommand>? commands = null;
 
+    /// <summary>
+    /// Starts the console enviroment.
+    /// </summary>
     public static void Run()
     {
         Console.WriteLine(@"
@@ -32,7 +38,10 @@ public static class DatabaseConsole
             Console.WriteLine(Cmd(Console.ReadLine()!, db));               
         }
     }
-
+    
+    /// <summary>
+    /// Executes a command from the console enviroment command list.
+    /// </summary>
     public static string Cmd(string command, Database db)
     {
         if(commands == null) commands = GetCommands();
@@ -53,7 +62,10 @@ public static class DatabaseConsole
 
 
     }
-
+    
+    /// <summary>
+    /// Creates a dictionary with all the console commands.
+    /// </summary>
     private static Dictionary<string, IDBCommand> GetCommands()
     {
         Dictionary<string, IDBCommand> commands = new Dictionary<string, IDBCommand>();
@@ -83,6 +95,10 @@ public static class DatabaseConsole
         return commands;
     }
     
+    /// <summary>
+    /// Starts a dialog with the user to get creadentials for the database.
+    /// Saves the credentials in a file.
+    /// </summary>
     private static DatabaseCredentials GetCredentials()
     {
         DatabaseCredentials credentials = null!; 
@@ -143,7 +159,10 @@ public static class DatabaseConsole
 
         return credentials;
     }
-
+    
+    /// <summary>
+    /// Creates a dialog with the user to get his credentials.
+    /// </summary>
     private static DatabaseCredentials AskCredentials()
     {
         Console.Write("database url: ");

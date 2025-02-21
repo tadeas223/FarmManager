@@ -1,5 +1,13 @@
+/// <summary>
+/// Utilities or sometning.
+/// </summary>
 public static class Utility
 {
+    /// <summary>
+    /// Inserts 4 spaces at each new line of a string.
+    /// </summary>
+    /// <param name="tabs">Number of tabs to add at each line</param>
+    /// <param name="original">String to add tabs in</param>
     public static string AddTabs(string original, int tabs)
     {
         List<string> list = new List<string>();

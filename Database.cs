@@ -1,13 +1,28 @@
 using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 
+/// <summary>
+/// Represents a SQL database.
+/// </summary>
 public class Database : IDisposable
 {
+    /// <summary>
+    /// Path to a SQL script for initializing the database tables.
+    /// <\summary>
     public static string DATABASE_SQL = "database.sql";
+    
     private SqlConnection connection;
-
+    
+    /// <summary>
+    /// Opened SQL connection.
+    /// </summary>
     public SqlConnection Connection {get => connection; }
-
+    
+    /// <summary>
+    /// Connects to the database.
+    /// </summary>
+    /// <param name="credentials">The database credentials to log in with</param>
+    /// <exception cref="SqlException">Thrown if the credentials are wrong</exception>
     public Database(DatabaseCredentials credentials)
     {
         var conBuilder = credentials.ConnectionBuilder;
@@ -15,7 +30,13 @@ public class Database : IDisposable
         connection = new SqlConnection(conBuilder.ConnectionString);
         connection.Open();
     }
-
+    
+    /// <summary>
+    /// Creates a new database with the <see cref="DATABASE_SQL"/> file.
+    /// </summary>
+    /// <param name="credentials">The database credentials to log in with</param>
+    /// <exception cref="DatabaseException"> Thrown if the database name is invalid</exception>
+    /// <exception cref="SqlException">Thrown if the credentials are wrong</exception>
     public static void Create(DatabaseCredentials credentials)
     {
         string sql = File.ReadAllText(DATABASE_SQL);
@@ -47,6 +68,11 @@ public class Database : IDisposable
         }
     }
     
+    /// <summary>
+    /// Checks if the databse exists
+    /// </sumary>
+    /// <param name="credentials">The database credentials with the name of the database to check</param>
+    /// <returns><c>true</c> if the database exists; otherwise, <c>false</c></returns>
     public static bool Exists(DatabaseCredentials credentials) 
     {
         var conBuilder = credentials.ConnectionBuilderNoDB;
@@ -65,6 +91,9 @@ public class Database : IDisposable
         return exists;
     }
     
+    /// <summary>
+    /// Disposes the database connection.
+    /// </summary>
     public void Dispose()
     {
         connection.Dispose();
