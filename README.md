@@ -1,7 +1,7 @@
 # FarmManager
 <small>This README was created with a little help from ChatGPT</small>
 
-FarmManager a console application for managing information related to farming associations, crops, fields, and workers.
+FarmManager is a console application for managing information related to farming associations, crops, fields, and workers.
 
 ## Console Interface
 
