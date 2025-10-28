@@ -1,7 +1,7 @@
 # CSharpDatabase
 <small>This README was created with a little help from ChatGPT</small>
 
-CSharpDatabase is an API and console application for managing information related to farming associations, crops, fields, and workers.
+CSharpDatabase a console application for managing information related to farming associations, crops, fields, and workers.
 
 ## Console Interface
 
